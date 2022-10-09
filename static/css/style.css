@@ -1,0 +1,47 @@
+body, html {height: 100%}
+
+body {font-family: "Amatic SC", sans-serif}
+
+.menu {display: none}
+
+.drag-text {
+    font-size:30px;
+}
+
+.bgimg {
+   background-repeat: no-repeat;
+   background-size: cover;
+   background-image: url(../img/image.png);
+   min-height: 100%;
+   overflow:hidden;
+   pointer-events: none;
+ }
+
+.drop-box {
+  width: 800px;
+  height: 350px;
+  border: 1px dashed blue;
+  position:absolute;
+  margin: auto; left: 0; right: 0; top: 0; bottom: 0;
+  overflow: hidden;
+  overflow-y: auto;
+  pointer-events: none;
+
+}
+
+.submit {
+    top: 600px;
+    margin-left: -30px;
+    position:absolute;
+}
+
+
+.dropfile {
+    font-size:30px;
+    text-align: right;
+    width: 800px;
+    height: 350px;
+    position:absolute;
+    margin: auto; left: 0; right: 0; top: 0; bottom: 0;
+}
+
