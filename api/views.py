@@ -1,3 +1,4 @@
+import re
 from urllib.parse import uses_relative
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, FileResponse
@@ -7,10 +8,17 @@ from api.models import UserInfo
 
 
 def index(request):
+    print(request.COOKIES.get('is_login'))
     return render(request, 'home/index.html')
 
 
+def test(request):
+    return render(request, "test/index.html")
+
+
 def login(request):
+    if request.method == "GET":
+        return render(request, "home/index.html")
     email = request.POST.get('email')
     password = request.POST.get('password')
     print(email)
@@ -22,7 +30,7 @@ def login(request):
         print(user_info)
         for i in user_info:
             if str(i.password) == password:
-                rep.set_cookie('email', email, max_age=600)
+                rep.set_cookie('is_login', True, max_age=600)
                 return rep
             else:
                 return JsonResponse({
