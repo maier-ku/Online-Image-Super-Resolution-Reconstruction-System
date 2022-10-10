@@ -22,9 +22,10 @@
         <div class="w3-bar w3-xlarge w3-black w3-opacity w3-hover-opacity-off" id="myNavbar">
             <a href="#" class="w3-bar-item w3-button">HOME</a>
             <a href="#about" class="w3-bar-item w3-button">ABOUT</a>
-            <a class="w3-button w3-right w3-bar-item w3-border w3-border-red w3-round-large" onclick="openSignup()">Sign
+            <a id="register_nav" class="w3-button w3-right w3-bar-item w3-border w3-border-red w3-round-large"
+                onclick="openSignup()">Sign
                 Up</a>
-            <a class="w3-button w3-right w3-bar-item" onclick="openLogin()">Login</a>
+            <a id="login_nav" class="w3-button w3-right w3-bar-item" onclick="openLogin()">Login</a>
         </div>
     </div>
 
@@ -119,7 +120,15 @@
                     'password': password_login.value
                 },
                 success: function (data) {
-                    alert(data.msg)
+                    console.log(data)
+                    if (data.msg === "Log in successfully!") {
+                        alert(data.msg)
+                        location.href = '/test'
+                        // closeForm()
+                        // document.getElementById('login_nav').style.visibility = "hidden"
+                    } else{
+                        alert(data.msg)
+                    }
                 }
             })
         })
@@ -134,6 +143,7 @@
                 },
                 success: function (data) {
                     alert(data.msg)
+                    closeSignup()
                 }
             })
         })

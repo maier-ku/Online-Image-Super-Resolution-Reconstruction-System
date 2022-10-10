@@ -14,7 +14,6 @@ body {font-family: "Amatic SC", sans-serif}
    background-image: url(../img/image.png);
    min-height: 100%;
    overflow:hidden;
-   pointer-events: none;
  }
 
 .drop-box {
