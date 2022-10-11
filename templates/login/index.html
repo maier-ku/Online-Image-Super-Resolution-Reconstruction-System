@@ -22,11 +22,43 @@
         <div class="w3-bar w3-xlarge w3-black w3-opacity w3-hover-opacity-off" id="myNavbar">
             <a href="#" class="w3-bar-item w3-button">HOME</a>
             <a href="#about" class="w3-bar-item w3-button">ABOUT</a>
-            <a id="logout_nav" class="w3-button w3-right w3-bar-item w3-border w3-border-red w3-round-large" href="/logout/">Log
-                Out</a>
-            <a id="welcome_nav" class="w3-button w3-right w3-bar-item w3-border w3-border-red w3-round-large">Hello,
-                {{user}}</a>
+            <a id="register_nav" class="w3-button w3-right w3-bar-item w3-border w3-border-red w3-round-large"
+                onclick="openSignup()">Sign
+                Up</a>
+            <a id="login_nav" class="w3-button w3-right w3-bar-item" onclick="openLogin()">Login</a>
         </div>
+    </div>
+
+    <!--Pop up form for login-->
+    <div class="form-popup" id="myForm">
+        <form class="form-container" action="/login/" method="post">
+            {% csrf_token %}
+            <h1>Login</h1>
+
+            <label for="username"><b>Username</b></label>
+            <input type="text" placeholder="Enter Username" name="username" required>
+
+            <label for="psw"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="password" required>
+
+            <button type="submit" class="btn" id="login">Login</button>
+            <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+        </form>
+    </div>
+    <!--Pop up form for sign up-->
+    <div class="form-popup" id="signupForm">
+        <form class="form-container" action="/signup/" method="post">
+            <h1>Sign up</h1>
+
+            <label for="username"><b>Username</b></label>
+            <input type="text" placeholder="Enter Username" name="username" required>
+
+            <label for="psw"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="password" required>
+
+            <button type="submit" class="btn" id="register">Sign Up</button>
+            <button type="button" class="btn cancel" onclick="closeSignup()">Close</button>
+        </form>
     </div>
 
     <!-- Header with image -->
@@ -73,6 +105,7 @@
 
         </div>
     </div>
+
     {% if messages %}
     <script>
         {% for msg in messages %}
@@ -80,6 +113,8 @@
         {% endfor %}
     </script>
     {% endif %}
+
+
 </body>
 
 </html>
