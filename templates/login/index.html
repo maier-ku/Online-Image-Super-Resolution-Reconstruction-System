@@ -31,7 +31,7 @@
 
     <!--Pop up form for login-->
     <div class="form-popup" id="myForm">
-        <form class="form-container" action="/login/" method="post">
+        <form class="form-container" action={% url 'login' %} method="post">
             {% csrf_token %}
             <h1>Login</h1>
 
@@ -47,7 +47,8 @@
     </div>
     <!--Pop up form for sign up-->
     <div class="form-popup" id="signupForm">
-        <form class="form-container" action="/signup/" method="post">
+        <form class="form-container" action={% url 'signup' %} method="post">
+            {% csrf_token %}
             <h1>Sign up</h1>
 
             <label for="username"><b>Username</b></label>
@@ -72,12 +73,20 @@
             <span class="w3-tag w3-xlarge w3-hide-small">You can convert your image to a high revolution version.</span>
         </div>
 
-        <div class="w3-text-white  w3-center">
-            <form>
-                <input type="file" id="myfile" name="myfile" class="w3-text-white dropfile">
-                <input type="submit" id="submit" class="w3-button w3-xxlarge w3-black submit w3-center">
+        <div class="w3-display-middle w3-text-white drop-box">
+            <form action={% url 'processing' %} method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="pic" class="w3-text-white drop-file-button" required>
+                <input type="submit" class="w3-button w3-xxlarge w3-black w3-center w3-display-bottommiddle">
+                <fieldset class="w3-display-bottomright">
+                    <legend>Select a SR level:</legend>
+                    <label><input type="radio" name="level" value="2x" class="w3-check w3-radio" checked>2x</label>
+                    <div title="Only registered users can use this function!">
+                        <label><input type="radio" name="level" value="4x" class="w3-check w3-radio" disabled>4x</label>
+                        <label><input type="radio" name="level" value="4xp" class="w3-check w3-radio" disabled>4x+</label>
+                    </div>
+                </fieldset>
             </form>
-            <div id="drop" class="drop-box"></div>
         </div>
 
     </header>

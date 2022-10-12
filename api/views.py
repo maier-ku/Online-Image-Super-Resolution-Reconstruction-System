@@ -3,11 +3,32 @@ from django.shortcuts import redirect, render
 from django.http import HttpResponse, JsonResponse, FileResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages, auth
-from api.models import UserInfo
+from PIL import Image
 from django.urls import reverse
 from django.contrib.auth.models import User
-# from django.contrib.auth.decorators import login_required
+from models.utils import *
+from models.models import SRResNet
+import torch
 # Create your views here.
+large_kernel_size = 9   # 第一层卷积和最后一层卷积的核大小
+small_kernel_size = 3   # 中间层卷积的核大小
+n_channels = 64         # 中间层通道数
+n_blocks = 16           # 残差模块数量
+scaling_factor = 2      # 放大比例
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+srresnet_checkpoint = "./models/2X_SRResNet.pth"
+
+# 加载模型SRResNet
+checkpoint = torch.load(srresnet_checkpoint)
+SRResNet_2 = SRResNet(large_kernel_size=large_kernel_size,
+                      small_kernel_size=small_kernel_size,
+                      n_channels=n_channels,
+                      n_blocks=n_blocks,
+                      scaling_factor=scaling_factor)
+SRResNet_2 = SRResNet_2.to(device)
+SRResNet_2.load_state_dict(checkpoint['model'])
+
+SRResNet_2.eval()
 
 
 def index(request):
@@ -32,8 +53,6 @@ def login(request):
         try:
             username = request.POST.get("username")
             password = request.POST.get("password")
-            print(username)
-            print(password)
             user_obj = auth.authenticate(username=username, password=password)
             if not user_obj:
                 messages.error(
@@ -54,7 +73,6 @@ def signup(request):
         return render(request, 'login/index.html')
     elif request.method == 'POST':
         try:
-            rep = redirect(reverse('home'))
             username = request.POST.get("username")
             password = request.POST.get("password")
             User.objects.create_user(username=username, password=password)
@@ -70,10 +88,23 @@ def signup(request):
 
 def logout(request):
     auth.logout(request)
-    messages.info(request, "Log in successfully!")
+    messages.info(request, "Log out successfully!")
     return redirect(reverse('index'))
 
 
+def processing(request):
+    scaling_factor = 4
+    if request.method == 'POST':
+        pic = request.FILES.get("pic")
+        img = Image.open(pic)
+        Bicubic_img = img.resize(
+            (int(img.width * scaling_factor), int(img.height * scaling_factor)), Image.BICUBIC)
+        Bicubic_img.save('./test_bicubic.jpg')
+    return render(request, 'login/index.html', {"pic": Bicubic_img})
+
+
+def get_prediction():
+    pass
 # def login(request):
 #     if request.method == 'POST':
 #         email = request.POST.get('email')
