@@ -36,24 +36,24 @@
     </div>
 
     <!--Pop up form for login-->
-    <div class="form-popup" id="myForm">
-        <form class="form-container" action={% url 'login' %} onsubmit="login()">
+    <div class="form-popup" id="loginFormDiv">
+        <form class="form-container" action={% url 'login' %} method="post" id="loginForm">
             {% csrf_token %}
             <h1>Login</h1>
 
             <label for="username"><b>Username</b></label>
-            <input type="text" placeholder="Enter Username" id="login_username" name="username" required>
+            <input type="text" placeholder="Enter Username" name="username" required>
 
             <label for="password"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" id="login_password" name="password" required>
+            <input type="password" placeholder="Enter Password" name="password" required>
 
             <input type="submit" class="btn">Login</input>
             <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
         </form>
     </div>
     <!--Pop up form for sign up-->
-    <div class="form-popup" id="signupForm">
-        <form class="form-container" onsubmit="signup()">
+    <div class="form-popup" id="signupFormDiv">
+        <form class="form-container" action={% url 'signup' %} method="post" id="signupForm">
             {% csrf_token %}
             <h1>Sign up</h1>
 
@@ -72,17 +72,29 @@
     <header class="bgimg w3-display-container w3-grayscale-min" id="home">
 
         <div class="w3-display-middle w3-text-white">
-            <label for="myfile" class="drag-text">Or drag and drop an image here</label>
+            {% if image_uri is not None %}
+            <label for="myfile" class="drag-text w3-text-black" id="download_label">You can download the file by
+                clicking on the image in the top right
+                corner</label>
+            {% else %}
+            <label for="myfile" class="drag-text" id="upload_label">Or drag and drop an image here</label>
+            {% endif %}
         </div>
 
         <div class="w3-display-bottomleft w3-padding">
             <span class="w3-tag w3-xlarge w3-hide-small">You can convert your image to a high revolution version.</span>
         </div>
         <div class="w3-display-middle w3-text-white drop-box">
-            <form action={% url 'processing' %} method="post" enctype="multipart/form-data" target="frameName">
+            {% if image_uri is not None %}
+            <a href="{{ image_uri }}" download="SR_result.jpg">
+                <img src="{{ image_uri }}" class="w3-display-topright download-pic" alt="Uploaded image" id="download_pic">
+            </a>
+            {% endif %}
+            <form action={% url 'processing' %} method="post" enctype="multipart/form-data" id="uploadForm">
                 {% csrf_token %}
-                <input type="file" name="pic" class="w3-text-white drop-file-button" required>
-                <input type="submit" class="w3-button w3-xlarge w3-black w3-center w3-display-bottommiddle">
+                <input type="file" name="pic" class="w3-text-white drop-file-button" onclick="changeText()" required>
+                <input type="submit" class="w3-button w3-xlarge w3-black w3-center w3-display-bottommiddle"
+                    value="upload">
                 <fieldset class="w3-display-bottomright">
                     <legend>Select a SR level:</legend>
                     <label><input type="radio" name="level" value="2x" class="w3-check w3-radio" checked>2x</label>
@@ -98,7 +110,6 @@
                 </fieldset>
             </form>
         </div>
-        <iframe src="" frameborder="0" name="frameName"></iframe>
     </header>
 
     <!-- About Container -->
@@ -125,49 +136,59 @@
         </div>
     </div>
 
-    {% if messages %}
+    <!-- {% if messages %}
     <script>
         {% for msg in messages %}
         alert('{{ msg.message }}');
         {% endfor %}
     </script>
-    {% endif %}
+    {% endif %} -->
     <script type="application/javascript">
-        function login() {
-            let username = document.querySelector('#login_username');
-            let password = document.querySelector('#login_password');
-            event.preventDefault();
+        $('#loginForm').submit(function (event) {
+            event.preventDefault()
+            var form = $(this)
+            let value = form.serializeArray()
+            let data = {}
+            $.each(value, function (index, item) {
+                data[item.name] = item.value
+            })
             $.ajax({
-                type: 'post',
-                url: '/login/',
+                type: form.attr('method'),
+                url: form.attr('action'),
                 async: false,
-                data: {
-                    'username': username.value,
-                    'password': password.value
-                },
+                data: data,
                 success: function (data) {
                     alert(data.msg)
                     location.href = '/'
                 }
             })
-        }
-        function signup() {
-            let username = document.querySelector('#signup_username');
-            let password = document.querySelector('#signup_password');
-            event.preventDefault();
+        })
+        $('#signupForm').submit(function (event) {
+            event.preventDefault()
+            var form = $(this)
+            let value = form.serializeArray()
+            let data = {}
+            $.each(value, function (index, item) {
+                data[item.name] = item.value
+            })
             $.ajax({
-                type: 'post',
-                url: '/signup/',
+                type: form.attr('method'),
+                url: form.attr('action'),
                 async: false,
-                data: {
-                    'username': username.value,
-                    'password': password.value
-                },
+                data: data,
                 success: function (data) {
                     alert(data.msg)
                     location.href = '/'
                 }
             })
+        })
+        function changeText() {
+            download_pic=document.getElementById("download_pic")
+            download_pic.style.display = 'none'
+            download_label = document.getElementById("download_label")
+            download_label.innerHTML = "Or drag and drop an image here"
+            download_label.className = "drag-text w3-text-white"
+            
         }
         function logout() {
             $.ajax({

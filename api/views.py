@@ -11,6 +11,7 @@ from models.utils import *
 from models.models import SRResNet
 import torch
 import io
+import base64
 # Create your views here.
 large_kernel_size = 9   # 第一层卷积和最后一层卷积的核大小
 small_kernel_size = 3   # 中间层卷积的核大小
@@ -40,14 +41,6 @@ def index(request):
     return render(request, 'login/index.html')
 
 
-def home(request):
-    if request.user.is_authenticated:
-        return render(request, "home/index.html", {"user": request.user.username})
-    else:
-        messages.error(request, "Unauthorized access! Please log in first!")
-        return redirect(reverse('index'))
-
-
 def login(request):
     if request.method == "GET":
         return render(request, 'login/index.html')
@@ -55,6 +48,7 @@ def login(request):
         try:
             username = request.POST.get("username")
             password = request.POST.get("password")
+            print(username, password)
             user_obj = auth.authenticate(username=username, password=password)
             if not user_obj:
                 return JsonResponse({"msg":
@@ -92,8 +86,10 @@ def logout(request):
 def processing(request):
     if request.method == 'POST':
         try:
+            print(request)
             pic = request.FILES.get("pic")
             level = request.POST.get("level")
+            print(pic, level)
             model = model_map[level]
             # messages.info(request, "Processing...Please wait...")
             sr_img = get_prediction(pic, model)
@@ -101,10 +97,13 @@ def processing(request):
             buf = io.BytesIO()
             sr_img.save(buf, 'jpeg')
             buf.seek(0)
+            encoded_img = base64.b64encode(buf.getvalue()).decode('ascii')
+            image_uri = 'data:%s;base64,%s' % ('image/jpeg', encoded_img)
+            return render(request, 'login/index.html', {'image_uri': image_uri})
             response = FileResponse(buf)
-            response['content_type'] = "application/octet-stream"
-            response['Content-Disposition'] = 'attachment; filename="SR_result.jpg"'
-            return response
+            # response['content_type'] = "application/octet-stream"
+            # response['Content-Disposition'] = 'attachment; filename="SR_result.jpg"'
+            # return response
         except Exception as e:
             print(repr(e))
             messages.error(request, repr(e))

@@ -23,13 +23,19 @@ body {
 	overflow: hidden;
 }
 
-.submit {
+/* .upload {
 	/* top: 600px; */
-	margin-left: -30px;
+margin-left: -90px;
+/* position: absolute; */
+}
+
+*/ .download {
+	/* top: 600px; */
+	margin-right: 90px;
 	/* position: absolute; */
 }
 
-.drop-box{
+.drop-box {
 	width: 800px;
 	height: 350px;
 	border: 1px dashed blue;
@@ -40,6 +46,17 @@ body {
 	text-align: right;
 	width: 800px;
 	height: 350px;
-	position:absolute;
-	margin: auto; left: 0; right: 0; top: 0; bottom: 0;
+	position: absolute;
+	margin: auto;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.download-pic {
+	max-width: min(200px, 100%);
+	height: auto;
+	z-index: 1;
+	overflow: hidden;
 }

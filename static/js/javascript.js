@@ -46,19 +46,19 @@ document.getElementById("myLink").click();
 
 
 function openLogin() {
-  document.getElementById("myForm").style.display = "block";
-  document.getElementById("signupForm").style.display = "none";
+  document.getElementById("loginFormDiv").style.display = "block";
+  document.getElementById("signupFormDiv").style.display = "none";
 }
 function closeForm() {
-  document.getElementById("myForm").style.display = "none";
+  document.getElementById("loginFormDiv").style.display = "none";
 }
 
 function openSignup() {
-  document.getElementById("signupForm").style.display = "block";
-  document.getElementById("myForm").style.display = "none";
+  document.getElementById("signupFormDiv").style.display = "block";
+  document.getElementById("loginFormDiv").style.display = "none";
 }
 function closeSignup() {
-  document.getElementById("signupForm").style.display = "none";
+  document.getElementById("signupFormDiv").style.display = "none";
 }
 
 
