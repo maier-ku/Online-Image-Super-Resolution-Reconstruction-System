@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from models.utils import *
 from models.models import SRResNet
 import torch
+import io
 # Create your views here.
 large_kernel_size = 9   # 第一层卷积和最后一层卷积的核大小
 small_kernel_size = 3   # 中间层卷积的核大小
@@ -25,10 +26,13 @@ SRResNet_2 = SRResNet(large_kernel_size=large_kernel_size,
                       n_channels=n_channels,
                       n_blocks=n_blocks,
                       scaling_factor=scaling_factor)
-SRResNet_2 = SRResNet_2.to(device)
 SRResNet_2.load_state_dict(checkpoint['model'])
 
 SRResNet_2.eval()
+
+model_map = {
+    "2x": SRResNet_2,
+}
 
 
 def index(request):
@@ -60,6 +64,7 @@ def login(request):
                 return redirect(reverse('index'))
             else:
                 auth.login(request, user_obj)
+                print(request.session.keys())
                 messages.info(request, "Log in successfully!")
                 return redirect(reverse('home'))
         except Exception as e:
@@ -93,61 +98,33 @@ def logout(request):
 
 
 def processing(request):
-    scaling_factor = 4
     if request.method == 'POST':
-        pic = request.FILES.get("pic")
-        img = Image.open(pic)
-        Bicubic_img = img.resize(
-            (int(img.width * scaling_factor), int(img.height * scaling_factor)), Image.BICUBIC)
-        Bicubic_img.save('./test_bicubic.jpg')
-    return render(request, 'login/index.html', {"pic": Bicubic_img})
+        try:
+            pic = request.FILES.get("pic")
+            level = request.POST.get("level")
+            model = model_map[level]
+            sr_img = get_prediction(pic, model)
+            # cache_path = "./cache/"+str(request.session["_auth_user_hash"])+".jpg"
+            buf = io.BytesIO()
+            sr_img.save(buf, 'jpeg')
+            buf.seek(0)
+            response = FileResponse(buf)
+            response['content_type'] = "application/octet-stream"
+            response['Content-Disposition'] = 'attachment; filename="SR_result.jpg"'
+            return response
+        except Exception as e:
+            print(repr(e))
+            messages.error(request, repr(e))
+            return redirect(reverse('index'))
 
 
-def get_prediction():
-    pass
-# def login(request):
-#     if request.method == 'POST':
-#         email = request.POST.get('email')
-#         password = request.POST.get('password')
-#         try:
-#             rep = redirect(reverse('home'))
-#             user_info = UserInfo.objects.filter(email=email)
-#             user_pass = False
-#             # print(user_info)
-#             for i in user_info:
-#                 if str(i.password) == password:
-#                     request.session['email'] = email
-#                     messages.info(request, "Log in successfully!")
-#                     return rep
-#                 else:
-#                     print("Password is wrong!")
-#                     messages.error(request, "Password is wrong!")
-#                     return redirect(reverse('index'))
-#             if not user_pass:
-#                 messages.error(request, "Email does not exist!")
-#                 return redirect(reverse('index'))
-#         except Exception as e:
-#             print(repr(e))
-#             messages.error(request, repr(e))
-#             return redirect(reverse('index'))
-
-
-# def signup(request):
-#     if request.method == 'GET':
-#         return render(request, 'home/index.html')
-#     elif request.method == 'POST':
-#         try:
-#             rep = redirect(reverse('home'))
-#             email = request.POST.get('email')
-#             password = request.POST.get('password')
-#             UserInfo.objects.create(
-#                 email=email,
-#                 password=password
-#             )
-#             request.session['email'] = email
-#             messages.info(request, "Register successfully!")
-#             return rep
-#         except Exception as e:
-#             print(repr(e))
-#             messages.error(request, repr(e))
-#             return redirect(reverse('index'))
+def get_prediction(pic, model):
+    img = Image.open(pic)
+    img = img.convert('RGB')
+    lr_img = convert_image(img, source='pil', target='imagenet-norm')
+    lr_img.unsqueeze_(0)
+    with torch.no_grad():
+        # (1, 3, w*scale, h*scale), in [-1, 1]
+        sr_img = model(lr_img).squeeze(0).detach()
+        sr_img = convert_image(sr_img, source='[-1, 1]', target='pil')
+        return sr_img

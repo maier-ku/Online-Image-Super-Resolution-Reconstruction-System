@@ -77,14 +77,14 @@
             <form action={% url 'processing' %} method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="file" name="pic" class="w3-text-white drop-file-button" required>
-                <input type="submit" class="w3-button w3-xxlarge w3-black w3-center w3-display-bottommiddle">
+                <input type="submit" class="w3-button w3-xlarge w3-black w3-center w3-display-bottommiddle">
                 <fieldset class="w3-display-bottomright">
                     <legend>Select a SR level:</legend>
                     <label><input type="radio" name="level" value="2x" class="w3-check w3-radio" checked>2x</label>
-                    <div title="Only registered users can use this function!">
-                        <label><input type="radio" name="level" value="4x" class="w3-check w3-radio" disabled>4x</label>
-                        <label><input type="radio" name="level" value="4xp" class="w3-check w3-radio" disabled>4x+</label>
-                    </div>
+                    <label><input type="radio" name="level" value="4x" class="w3-check w3-radio"
+                            title="Only registered users can use this function!" disabled>4x</label>
+                    <label><input type="radio" name="level" value="4xp" class="w3-check w3-radio"
+                            title="Only registered users can use this function!" disabled>4x+</label>
                 </fieldset>
             </form>
         </div>
