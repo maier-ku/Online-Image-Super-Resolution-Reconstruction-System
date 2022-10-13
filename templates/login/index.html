@@ -22,42 +22,48 @@
         <div class="w3-bar w3-xlarge w3-black w3-opacity w3-hover-opacity-off" id="myNavbar">
             <a href="#" class="w3-bar-item w3-button">HOME</a>
             <a href="#about" class="w3-bar-item w3-button">ABOUT</a>
+            {% if request.user.is_authenticated %}
+            <a id="logout_nav" class="w3-button w3-right w3-bar-item w3-border w3-border-red w3-round-large"
+                onclick="logout()">Log Out</a>
+            <a id="welcome_nav" class="w3-button w3-right w3-bar-item w3-border w3-border-red w3-round-large">Hello,
+                {{request.user}}</a>
+            {% else %}
             <a id="register_nav" class="w3-button w3-right w3-bar-item w3-border w3-border-red w3-round-large"
-                onclick="openSignup()">Sign
-                Up</a>
+                onclick="openSignup()">Sign Up</a>
             <a id="login_nav" class="w3-button w3-right w3-bar-item" onclick="openLogin()">Login</a>
+            {% endif %}
         </div>
     </div>
 
     <!--Pop up form for login-->
     <div class="form-popup" id="myForm">
-        <form class="form-container" action={% url 'login' %} method="post">
+        <form class="form-container" action={% url 'login' %} onsubmit="login()">
             {% csrf_token %}
             <h1>Login</h1>
 
             <label for="username"><b>Username</b></label>
-            <input type="text" placeholder="Enter Username" name="username" required>
+            <input type="text" placeholder="Enter Username" id="login_username" name="username" required>
 
-            <label for="psw"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" required>
+            <label for="password"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" id="login_password" name="password" required>
 
-            <button type="submit" class="btn" id="login">Login</button>
+            <input type="submit" class="btn">Login</input>
             <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
         </form>
     </div>
     <!--Pop up form for sign up-->
     <div class="form-popup" id="signupForm">
-        <form class="form-container" action={% url 'signup' %} method="post">
+        <form class="form-container" onsubmit="signup()">
             {% csrf_token %}
             <h1>Sign up</h1>
 
             <label for="username"><b>Username</b></label>
-            <input type="text" placeholder="Enter Username" name="username" required>
+            <input type="text" placeholder="Enter Username" id="signup_username" name="username" required>
 
-            <label for="psw"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" required>
+            <label for="password"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" id="signup_password" name="password" required>
 
-            <button type="submit" class="btn" id="register">Sign Up</button>
+            <input type="submit" class="btn">Sign Up</input>
             <button type="button" class="btn cancel" onclick="closeSignup()">Close</button>
         </form>
     </div>
@@ -72,23 +78,27 @@
         <div class="w3-display-bottomleft w3-padding">
             <span class="w3-tag w3-xlarge w3-hide-small">You can convert your image to a high revolution version.</span>
         </div>
-
         <div class="w3-display-middle w3-text-white drop-box">
-            <form action={% url 'processing' %} method="post" enctype="multipart/form-data">
+            <form action={% url 'processing' %} method="post" enctype="multipart/form-data" target="frameName">
                 {% csrf_token %}
                 <input type="file" name="pic" class="w3-text-white drop-file-button" required>
                 <input type="submit" class="w3-button w3-xlarge w3-black w3-center w3-display-bottommiddle">
                 <fieldset class="w3-display-bottomright">
                     <legend>Select a SR level:</legend>
                     <label><input type="radio" name="level" value="2x" class="w3-check w3-radio" checked>2x</label>
+                    {% if request.user.is_authenticated %}
+                    <label><input type="radio" name="level" value="4x" class="w3-check w3-radio">4x</label>
+                    <label><input type="radio" name="level" value="4xp" class="w3-check w3-radio">4x+</label>
+                    {% else %}
                     <label><input type="radio" name="level" value="4x" class="w3-check w3-radio"
                             title="Only registered users can use this function!" disabled>4x</label>
                     <label><input type="radio" name="level" value="4xp" class="w3-check w3-radio"
                             title="Only registered users can use this function!" disabled>4x+</label>
+                    {% endif %}
                 </fieldset>
             </form>
         </div>
-
+        <iframe src="" frameborder="0" name="frameName"></iframe>
     </header>
 
     <!-- About Container -->
@@ -122,7 +132,57 @@
         {% endfor %}
     </script>
     {% endif %}
-
+    <script type="application/javascript">
+        function login() {
+            let username = document.querySelector('#login_username');
+            let password = document.querySelector('#login_password');
+            event.preventDefault();
+            $.ajax({
+                type: 'post',
+                url: '/login/',
+                async: false,
+                data: {
+                    'username': username.value,
+                    'password': password.value
+                },
+                success: function (data) {
+                    alert(data.msg)
+                    location.href = '/'
+                }
+            })
+        }
+        function signup() {
+            let username = document.querySelector('#signup_username');
+            let password = document.querySelector('#signup_password');
+            event.preventDefault();
+            $.ajax({
+                type: 'post',
+                url: '/signup/',
+                async: false,
+                data: {
+                    'username': username.value,
+                    'password': password.value
+                },
+                success: function (data) {
+                    alert(data.msg)
+                    location.href = '/'
+                }
+            })
+        }
+        function logout() {
+            $.ajax({
+                type: 'get',
+                url: '/logout/',
+                async: false,
+                data: {
+                },
+                success: function (data) {
+                    alert(data.msg)
+                    location.href = '/'
+                }
+            })
+        }
+    </script>
 
 </body>
 

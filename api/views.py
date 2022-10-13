@@ -1,3 +1,4 @@
+import re
 from urllib.parse import uses_relative
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, JsonResponse, FileResponse
@@ -36,10 +37,7 @@ model_map = {
 
 
 def index(request):
-    if request.user.is_authenticated:
-        return redirect(reverse('home'))
-    else:
-        return render(request, 'login/index.html')
+    return render(request, 'login/index.html')
 
 
 def home(request):
@@ -59,18 +57,14 @@ def login(request):
             password = request.POST.get("password")
             user_obj = auth.authenticate(username=username, password=password)
             if not user_obj:
-                messages.error(
-                    request, "Username does not exist or password is wrong!")
-                return redirect(reverse('index'))
+                return JsonResponse({"msg":
+                                     "Username does not exist or password is wrong!"})
             else:
                 auth.login(request, user_obj)
-                print(request.session.keys())
-                messages.info(request, "Log in successfully!")
-                return redirect(reverse('home'))
+                return JsonResponse({"msg": "Log in successfully!"})
         except Exception as e:
             print(repr(e))
-            messages.error(request, repr(e))
-            return redirect(reverse('index'))
+            return JsonResponse({"msg": repr(e)})
 
 
 def signup(request):
@@ -80,21 +74,19 @@ def signup(request):
         try:
             username = request.POST.get("username")
             password = request.POST.get("password")
+            print(username, password)
             User.objects.create_user(username=username, password=password)
-            messages.info(request, "Register successfully!")
             user_obj = auth.authenticate(username=username, password=password)
             auth.login(request, user_obj)
-            return redirect(reverse('home'))
+            return JsonResponse({"msg": "Register successfully!"})
         except Exception as e:
             print(repr(e))
-            messages.error(request, "Username has been registered!")
-            return redirect(reverse('index'))
+            return JsonResponse({"msg": "Username has been registered!"})
 
 
 def logout(request):
     auth.logout(request)
-    messages.info(request, "Log out successfully!")
-    return redirect(reverse('index'))
+    return JsonResponse({"msg": "Log out successfully!"})
 
 
 def processing(request):
@@ -103,6 +95,7 @@ def processing(request):
             pic = request.FILES.get("pic")
             level = request.POST.get("level")
             model = model_map[level]
+            # messages.info(request, "Processing...Please wait...")
             sr_img = get_prediction(pic, model)
             # cache_path = "./cache/"+str(request.session["_auth_user_hash"])+".jpg"
             buf = io.BytesIO()
