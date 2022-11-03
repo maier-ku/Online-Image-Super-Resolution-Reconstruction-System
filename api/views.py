@@ -172,5 +172,5 @@ def get_weighted_prediction(img):
             else:
                 final_img += sr_img * weight
         count += 1
-        final_img = convert_image(final_img, source='[-1, 1]', target='pil')
-        return final_img
+    final_img = convert_image(final_img, source='[-1, 1]', target='pil')
+    return final_img

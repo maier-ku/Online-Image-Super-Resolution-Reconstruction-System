@@ -2,7 +2,7 @@ import math
 
 from torch import nn
 
-from models import ConvolutionalBlock, ResidualBlock, SubPixelConvolutionalBlock
+from models.models import ConvolutionalBlock, ResidualBlock, SubPixelConvolutionalBlock
 
 
 class Generator(nn.Module):
