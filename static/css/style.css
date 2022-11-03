@@ -1,0 +1,62 @@
+body,
+html {
+	height: 100%
+}
+
+body {
+	font-family: "Amatic SC", sans-serif
+}
+
+.menu {
+	display: none
+}
+
+.drag-text {
+	font-size: 30px;
+}
+
+.bgimg {
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-image: url(../img/image.png);
+	min-height: 100%;
+	overflow: hidden;
+}
+
+/* .upload {
+	/* top: 600px; */
+margin-left: -90px;
+/* position: absolute; */
+}
+
+*/ .download {
+	/* top: 600px; */
+	margin-right: 90px;
+	/* position: absolute; */
+}
+
+.drop-box {
+	width: 800px;
+	height: 350px;
+	border: 1px dashed blue;
+}
+
+.drop-file-button {
+	font-size: 30px;
+	text-align: right;
+	width: 800px;
+	height: 350px;
+	position: absolute;
+	margin: auto;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.download-pic {
+	max-width: min(200px, 100%);
+	height: auto;
+	z-index: 1;
+	overflow: hidden;
+}

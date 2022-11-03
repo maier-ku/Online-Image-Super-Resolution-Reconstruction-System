@@ -1,0 +1,223 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <title>Image Super Resolution Reconstruction</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amatic+SC" />
+    <link rel="stylesheet" href={% static 'css/style.css' %} />
+    <link rel="stylesheet" href={% static 'css/loginform.css' %} />
+    <script src={% static 'js/javascript.js' %}></script>
+    <script src={% static 'js/jquery-3.6.0.min.js' %}></script>
+</head>
+
+<body>
+
+    <!-- Navbar (sit on top) -->
+    <div class="w3-top w3-hide-small">
+        <div class="w3-bar w3-xlarge w3-black w3-opacity w3-hover-opacity-off" id="myNavbar">
+            <a href="#" class="w3-bar-item w3-button">HOME</a>
+            <a href="#about" class="w3-bar-item w3-button">ABOUT</a>
+            {% if request.user.is_authenticated %}
+            <a id="logout_nav" class="w3-button w3-right w3-bar-item w3-border w3-border-red w3-round-large"
+                onclick="logout()">Log Out</a>
+            <a id="welcome_nav" class="w3-button w3-right w3-bar-item w3-border w3-border-red w3-round-large">Hello,
+                {{request.user}}</a>
+            {% else %}
+            <a id="register_nav" class="w3-button w3-right w3-bar-item w3-border w3-border-red w3-round-large"
+                onclick="openSignup()">Sign Up</a>
+            <a id="login_nav" class="w3-button w3-right w3-bar-item" onclick="openLogin()">Login</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!--Pop up form for login-->
+    <div class="form-popup" id="loginFormDiv">
+        <form class="form-container" action={% url 'login' %} method="post" id="loginForm">
+            {% csrf_token %}
+            <h1>Login</h1>
+
+            <label for="username"><b>Username</b></label>
+            <input type="text" placeholder="Enter Username" name="username" required>
+
+            <label for="password"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="password" required>
+
+            <input type="submit" class="btn">Login</input>
+            <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+        </form>
+    </div>
+    <!--Pop up form for sign up-->
+    <div class="form-popup" id="signupFormDiv">
+        <form class="form-container" action={% url 'signup' %} method="post" id="signupForm">
+            {% csrf_token %}
+            <h1>Sign up</h1>
+
+            <label for="username"><b>Username</b></label>
+            <input type="text" placeholder="Enter Username" id="signup_username" name="username" required>
+
+            <label for="password"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" id="signup_password" name="password" required>
+
+            <input type="submit" class="btn">Sign Up</input>
+            <button type="button" class="btn cancel" onclick="closeSignup()">Close</button>
+        </form>
+    </div>
+
+    <!-- Header with image -->
+    <header class="bgimg w3-display-container w3-grayscale-min" id="home">
+
+        <div class="w3-display-middle w3-text-white">
+            {% if image_uri is not None %}
+            <label for="myfile" class="drag-text w3-text-black" id="download_label">You can download the file by
+                clicking on the image in the top right
+                corner</label>
+            {% else %}
+            <label for="myfile" class="drag-text" id="upload_label">Or drag and drop an image here</label>
+            {% endif %}
+        </div>
+
+        <div class="w3-display-bottomleft w3-padding">
+            <span class="w3-tag w3-xlarge w3-hide-small">You can convert your image to a high revolution version.</span>
+        </div>
+        <div class="w3-display-middle w3-text-white drop-box">
+            {% if image_uri is not None %}
+            <a href="{{ image_uri }}" download="SR_result.jpg">
+                <img src="{{ image_uri }}" class="w3-display-topright download-pic" alt="Uploaded image" id="download_pic">
+            </a>
+            {% endif %}
+            <form action={% url 'processing' %} method="post" enctype="multipart/form-data" id="uploadForm">
+                {% csrf_token %}
+                <input type="file" name="pic" class="w3-text-white drop-file-button" onclick="changeText()" required>
+                <input type="submit" class="w3-button w3-xlarge w3-black w3-center w3-display-bottommiddle"
+                    value="upload">
+                <fieldset class="w3-display-bottomright">
+                    <legend>Select a SR level:</legend>
+                    <label><input type="radio" name="level" value="2x" class="w3-check w3-radio" checked>2x</label>
+                    {% if request.user.is_authenticated %}
+                    <label><input type="radio" name="level" value="4x" class="w3-check w3-radio">4x</label>
+                    <label><input type="radio" name="level" value="4xp" class="w3-check w3-radio">4x+</label>
+                    {% else %}
+                    <label><input type="radio" name="level" value="4x" class="w3-check w3-radio"
+                            title="Only registered users can use this function!" disabled>4x</label>
+                    <label><input type="radio" name="level" value="4xp" class="w3-check w3-radio"
+                            title="Only registered users can use this function!" disabled>4x+</label>
+                    {% endif %}
+                </fieldset>
+            </form>
+        </div>
+    </header>
+
+    <!-- About Container -->
+    <div class="w3-container w3-padding-64 w3-red w3-grayscale w3-xlarge" id="about">
+        <div class="w3-content">
+            <h1 class="w3-center w3-jumbo" style="margin-bottom:64px">About</h1>
+            <p>The system can recover a given low-resolution image into a corresponding high-resolution image</p>
+            <p><div class="w3-row">
+                <div class="w3-col s6">
+                    <p><strong>Group Member</strong> </p>
+                    <p>Chen Zihao</p>
+                    <p>Ku Maier</p>
+                    <p>Liu Haoran</p>
+                    <p>Shen Jingyu</p>
+                </div>
+                <div class="w3-col s6">
+                    <p><strong>contact email</strong></p>
+                    <p>e0983252@nus.edu.sg</p>
+                    <p>e0983216@u.nus.edu</p>
+                    <p>haoran.h.liu@u.nus.edu</p>
+                    <p>jingyu.shen@u.nus.edu</p>
+                </div>
+            </div></p>
+            <h1><b>Why not register to better your experience!</b></h1>
+            <div class="w3-row">
+                <div class="w3-col s6">
+                    <p>Free guest</p>
+                    <p>registered member</p>
+                </div>
+                <div class="w3-col s6">
+                    <p>limit to 2X Upscaling</p>
+                    <p>enjoy your 4X Upscaling, or even 4X plus!</p>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {% if messages %}
+    <script>
+        {% for msg in messages %}
+        alert('{{ msg.message }}');
+        {% endfor %}
+    </script>
+    {% endif %}
+    <script type="application/javascript">
+        $('#loginForm').submit(function (event) {
+            event.preventDefault()
+            var form = $(this)
+            let value = form.serializeArray()
+            let data = {}
+            $.each(value, function (index, item) {
+                data[item.name] = item.value
+            })
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                async: false,
+                data: data,
+                success: function (data) {
+                    alert(data.msg)
+                    location.href = '/'
+                }
+            })
+        })
+        $('#signupForm').submit(function (event) {
+            event.preventDefault()
+            var form = $(this)
+            let value = form.serializeArray()
+            let data = {}
+            $.each(value, function (index, item) {
+                data[item.name] = item.value
+            })
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                async: false,
+                data: data,
+                success: function (data) {
+                    alert(data.msg)
+                    location.href = '/'
+                }
+            })
+        })
+        function changeText() {
+            download_pic=document.getElementById("download_pic")
+            download_pic.style.display = 'none'
+            download_label = document.getElementById("download_label")
+            download_label.innerHTML = "Or drag and drop an image here"
+            download_label.className = "drag-text w3-text-white"
+            
+        }
+        function logout() {
+            $.ajax({
+                type: 'get',
+                url: '/logout/',
+                async: false,
+                data: {
+                },
+                success: function (data) {
+                    alert(data.msg)
+                    location.href = '/'
+                }
+            })
+        }
+    </script>
+
+</body>
+
+</html>
