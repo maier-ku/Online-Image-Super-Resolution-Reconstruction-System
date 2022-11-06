@@ -14,6 +14,6 @@ Run train_srgan.py to build SRGAN model using SRResNet as Generator, also, chang
 
 Run weighted_model_truncated.py to determine the weights for model ensemble.
 
-The training process costs a long time, so if you don't want to train models manually, please follow this link below and download models, put them under results folder. Remember the 4X_SRGAN model uses 4X_SRGAN_4.pth.
+The training process costs a long time, so if you don't want to train models manually, please follow this link below and download models, put them under models folder. Remember the 4X_SRGAN model uses 4X_SRGAN_4.pth.
 
 https://drive.google.com/drive/folders/1vVkVSG_BBKcttBeVcGZQEW8NvIYbaSSH?usp=sharing
